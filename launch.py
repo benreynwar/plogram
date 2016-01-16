@@ -11,7 +11,7 @@ from plover.machine import keymap
 from plover.oslayer.config import CONFIG_DIR, ASSETS_DIR
 from plover.config import CONFIG_FILE, DEFAULT_DICTIONARIES, Config
 
-from stenoprog import ortho_theory
+from stenoprog import ortho_keys, symbol_keys, edit_keys
 
 keymap.Keymap.DEFAULT = [
     ["0A", ["a"]],
@@ -44,10 +44,22 @@ def steno_keys_to_key_list(steno_keys):
             keys.append(name in steno_keys)
     return tuple(keys)
 
+def translate_keys(keys):
+    trans = None
+    if not keys[7]:
+        trans = ortho_keys.translate_ortho_keys(keys)
+    elif keys[4:7] == (False, False, False):
+        trans = symbol_keys.translate_symbol_keys(keys)
+    elif keys[4:7] == (False, True, False):
+        trans = edit_keys.translate_edit_keys(keys)
+    else:
+        print('not translation')
+    return trans
+
 def _lookup (strokes, dictionary, suffixes):
     if len(strokes) == 1:
         dict_key = steno_keys_to_key_list(strokes[0].steno_keys)
-        trans = ortho_theory.translate_key(dict_key)
+        trans = translate_keys(dict_key)
         if trans is None:
             result = None
         else:
@@ -102,7 +114,7 @@ def _translate_stroke(stroke, state, dictionary, callback):
             # There is no more buffer to delete from -- remove undo and add a
             # stroke that removes last word on the user's OS
             undo = []
-            do = [Translation([stroke], _back_string())]
+            do = [translation.Translation([stroke], translation._back_string())]
     else:
         # Figure out how much of the translation buffer can be involved in this
         # stroke and build the stroke list for translation.
