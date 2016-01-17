@@ -11,7 +11,7 @@ from plover.machine import keymap
 from plover.oslayer.config import CONFIG_DIR, ASSETS_DIR
 from plover.config import CONFIG_FILE, DEFAULT_DICTIONARIES, Config
 
-from stenoprog import ortho_keys, symbol_keys, edit_keys
+from stenoprog import ortho_keys, symbol_keys, edit_keys, emacs_keys
 
 keymap.Keymap.DEFAULT = [
     ["0A", ["a"]],
@@ -52,8 +52,11 @@ def translate_keys(keys):
         trans = symbol_keys.translate_symbol_keys(keys)
     elif keys[4:7] == (False, True, False):
         trans = edit_keys.translate_edit_keys(keys)
+    elif keys[4: 7] == (True, True, False):
+        trans = emacs_keys.translate_emacs_keys(keys)
     else:
         print('not translation')
+    print(trans)
     return trans
 
 def _lookup (strokes, dictionary, suffixes):
@@ -63,10 +66,6 @@ def _lookup (strokes, dictionary, suffixes):
         if trans is None:
             result = None
         else:
-            if len(trans) > 1 and trans[-1] == ' ':
-                trans = trans[:-1]
-            else:
-                trans = trans + '{^}'
             result = trans
     else:
         result = None

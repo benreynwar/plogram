@@ -177,19 +177,25 @@ def translate_ortho_keys(ks):
     vowel = keys_to_vowel[vowel_keys]
     # Upper case
     uppercase_key = ks[6]
-    # Space
-    space_key = ks[16]
-    if space_key:
-        space = ' '
+    # Ending
+    print(ks[16:18])
+    if ks[16: 18] == (True, False):
+        # Add space to the end
+        ending = ''
+    elif ks[16: 18] == (False, True):
+        ending = '{^}{#Alt_L(slash)}'
+    elif ks[16: 18] == (True, True):
+        ending = '_{^}'
     else:
-        space = ''
+        ending = '{^}'
     # Combine
-    if None in (start, vowel, end, space):
+    if None in (start, vowel, end):
         combined = None
     else:
-        combined = start + vowel + end + space
+        combined = start + vowel + end
         combined = combined.lower()
     if combined and uppercase_key:
         combined = combined[0].upper() + combined[1:]
+    if ending:
+        combined += ending
     return combined
-
