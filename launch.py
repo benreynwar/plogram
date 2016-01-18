@@ -2,6 +2,7 @@
 # See LICENSE.txt for details.
 
 import os
+import traceback
 
 from plover import main, app
 import plover.gui.main

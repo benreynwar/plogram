@@ -44,13 +44,13 @@ vowels = (
     ('U', (NON, LOW)),
     ('I', (NON, MID)),
     ('OU', (UPP, LOW)),
-    ('IO', (UPP, MID)),
+    ('IO', (MID, NON)),
     ('EA', (LOW, UPP)),
     ('IE', (MID, MID)),
     ('EE', (MID, UPP)),
     ('AI', (LOW, MID)),
     ('OO', (MID, LOW)),
-    ('OA', (MID, NON)), # uncommon ei and eu more common
+    #('OA', (MID, NON)), # uncommon ei and eu more common
     ('AU', (LOW, LOW)), # uncommon
     ('OE', (UPP, UPP)), # uncommon
 )

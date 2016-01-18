@@ -3,10 +3,17 @@ from stenoprog.keys import UPP, MID, NON, LOW
 
 emacs_map = {
     # Save buffer
-    ((NON, NON, NON), (NON, NON, NON, NON, NON)): '{#Alt_L(x)} s a v e - b u f f e r',
-    ((NON, NON, NON), (NON, LOW, NON, NON, NON)): '{#Alt_L(x)} close-buffer',
-    ((NON, NON, NON), (NON, UPP, NON, NON, NON)): '{#Alt_L(x)} find-file',
-    ((NON, NON, NON), (NON, NON, LOW, NON, NON)): '{#Alt_L(x)} switch-to-buffer',
+    ((NON, NON, NON), (NON, NON, NON, NON, NON)): '{#Control_L(x) Control_L(s)}',
+    # Close buffer
+    ((NON, NON, NON), (NON, LOW, NON, NON, NON)): '{#Control_L(x) Control_L(k)}',
+    # Find file
+    ((NON, NON, NON), (NON, UPP, NON, NON, NON)): '{#Control_L(x) Control_L(f)}',
+    # Escape out of input
+    ((NON, NON, NON), (NON, MID, NON, NON, NON)): '{#Control_L(g)}',
+    # Switch to buffer
+    ((NON, NON, NON), (NON, NON, LOW, NON, NON)): '{#Control_L(x) b Enter}',
+    # Previous word to upper case
+    # NOT IMPLEMENTED
  }
 
 keys_to_emacs = dict([(keys.positions_to_keys(positions[0]) + 
