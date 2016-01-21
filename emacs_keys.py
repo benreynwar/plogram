@@ -1,6 +1,9 @@
 from stenoprog import keys
 from stenoprog.keys import UPP, MID, NON, LOW
 
+def from_emacs_command(command):
+    return keys.M('x') + ' {PLOVER:PAUSE} ' + command + ' {#Return}'
+
 emacs_map = {
     # Save buffer
     ((NON, NON, NON), (NON, NON, NON, NON, NON)): '{#Control_L(x) Control_L(s)}',
@@ -11,7 +14,7 @@ emacs_map = {
     # Escape out of input
     ((NON, NON, NON), (NON, MID, NON, NON, NON)): '{#Control_L(g)}',
     # Switch to buffer
-    ((NON, NON, NON), (NON, NON, LOW, NON, NON)): '{#Control_L(x) b Enter}',
+    ((NON, NON, NON), (NON, NON, LOW, NON, NON)): '{#Control_L(x) b Return}',
     # Previous word to upper case
     # NOT IMPLEMENTED
  }

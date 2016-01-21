@@ -3,6 +3,22 @@ LOW = 'LOWER'
 MID = 'MIDDLE'
 NON = 'NEITHER'
 
+def M(c):
+    return '{#Alt_L(' + c + ')}'
+
+def C(c):
+    return '{#Control_L(' + c + ')}'
+
+def keys_to_number(keys):
+    assert(len(keys) == 4)
+    m = 1
+    t = 0
+    for key in keys:
+        if key:
+            t += m
+        m *= 2
+    return t
+
 def position_to_keys(position):
     if position == LOW:
         keys = (True, False)
@@ -25,3 +41,16 @@ def positions_to_keys(positions, reversed=False):
             keys += position_to_keys(position)
     return tuple(keys)
 
+def keys_to_positions(keys):
+    assert(len(keys) % 2 == 0)
+    positions = []
+    for index in range(0, len(keys), 2):
+        keyA = keys[index]
+        keyB = keys[index+1]
+        positions.append({
+            (True, True): MID,
+            (True, False): LOW,
+            (False, True): UPP,
+            (False, False): NON,
+        }[(keyA, keyB)])
+    return positions

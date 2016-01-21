@@ -196,6 +196,6 @@ def translate_ortho_keys(ks):
         combined = combined.lower()
     if combined and uppercase_key:
         combined = combined[0].upper() + combined[1:]
-    if ending:
+    if ending and combined:
         combined += ending
     return combined

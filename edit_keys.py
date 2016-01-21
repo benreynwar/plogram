@@ -1,40 +1,58 @@
 from stenoprog import keys
-from stenoprog.keys import UPP, MID, NON, LOW
+from stenoprog.keys import UPP, MID, NON, LOW, M, C 
+from stenoprog.emacs_keys import from_emacs_command
 
 edit_map = {
     # Deletes
-    ((NON, NON, NON), (NON, UPP, NON, UPP, NON)): '{#BackSpace}',
+    ((NON, NON), (UPP, NON, UPP, NON)): (True, '{#BackSpace}'),
     # Delete from this point to end of line (to kill-ring)
-    ((NON, LOW, NON), (NON, LOW, NON, UPP, NON)): '{#Control_L(k)}',
-    # Delete this line (not working)
-    ((NON, NON, NON), (NON, MID, NON, UPP, NON)): '{#Control_L(S Backspace)}',
+    ((NON, LOW), (LOW, NON, UPP, NON)): (False, C('k')),
+    # Delete this line
+    ((NON, NON), (MID, NON, UPP, NON)): (True, from_emacs_command('kill-whole-line')),
+    # Paste from kill-ring
+    ((NON, NON), (NON, NON, UPP, NON)): (False, C('y')),
     # Delete previous word
-    ((NON, UPP, NON), (NON, UPP, NON, UPP, NON)): '{#Alt_L(Backspace)}',
+    ((NON, UPP), (UPP, NON, UPP, NON)): (True, M('Backspace')),
     # Moves
-    ((NON, NON, NON), (NON, UPP, NON, NON, NON)): '{#Left}',
-    ((NON, NON, NON), (NON, LOW, NON, NON, NON)): '{#Right}',
-    ((NON, NON, NON), (NON, NON, UPP, NON, NON)): '{#Up}',
-    ((NON, NON, NON), (NON, NON, LOW, NON, NON)): '{#Down}',
+    ((NON, NON), (UPP, NON, NON, NON)): (True, '{#Left}'),
+    ((NON, NON), (LOW, NON, NON, NON)): (True, '{#Right}'),
+    ((NON, NON), (NON, UPP, NON, NON)): (True, '{#Up}'),
+    ((NON, NON), (NON, LOW, NON, NON)): (True, '{#Down}'),
+    # Move word 
+    ((NON, UPP), (UPP, NON, NON, NON)): (True, M('b')),
+    ((NON, UPP), (LOW, NON, NON, NON)): (True, M('f')),
+    # Move page
+    ((NON, UPP), (NON, UPP, NON, NON)): (True, from_emacs_command('scroll-down-command')),
+    ((NON, UPP), (NON, LOW, NON, NON)): (True, from_emacs_command('scroll-up-command')),
     # All Way Moves
-    ((NON, LOW, NON), (NON, UPP, NON, NON, NON)): '{#Control_L(a)}',
-    ((NON, LOW, NON), (NON, LOW, NON, NON, NON)): '{#Control_L(e)}',
-    ((NON, LOW, NON), (NON, NON, UPP, NON, NON)): '{#Alt_L(Shift_L(comma))}',
-    ((NON, LOW, NON), (NON, NON, LOW, NON, NON)): '{#Alt_L(Shift_L(period))}',
+    ((NON, LOW), (UPP, NON, NON, NON)): (False, C('a')),
+    ((NON, LOW), (LOW, NON, NON, NON)): (False, C('e')),
+    ((NON, LOW), (NON, UPP, NON, NON)): (False, M('Shift_L(comma)')),
+    ((NON, LOW), (NON, LOW, NON, NON)): (False, M('Shift_L(period)')),
     # Find Forward
-    ((NON, NON, NON), (NON, UPP, NON, LOW, NON)): '{#Control_L(s)}',
+    ((NON, NON), (UPP, NON, LOW, NON)): (False, C('s')),
     # Find Backwards
-    ((NON, NON, NON), (NON, LOW, NON, LOW, NON)): '{#Control_L(r)}',
+    ((NON, NON), (LOW, NON, LOW, NON)): (False, C('r')),
     # Alt-tab
-    ((NON, UPP, NON), (NON, NON, NON, NON, NON)): '{#Alt_L(Tab)}',
+    ((NON, UPP), (NON, NON, NON, NON)): (False, '{#Alt_L(Tab)}'),
+    # Search and replace
+    ((NON, NON), (UPP, NON, LOW, LOW)): (False, M('Shift_L(percent)')),
+    
  }
 
-keys_to_edit = dict([(keys.positions_to_keys(positions[0]) + 
-                      keys.positions_to_keys(positions[1], reversed=True) , edit)
-                     for positions, edit in edit_map.items()])
-
-
 def translate_edit_keys(ks):
-    edit = keys_to_edit.get(ks[0: 4] + ks[8: 20], None)
-    print(edit)
+    ps = keys.keys_to_positions(ks)
+    k = (tuple(ps[0:2]), tuple(reversed(ps[5: 9])))
+    can_repeat_and_edit = edit_map.get(k)
+    if can_repeat_and_edit is not None:
+        can_repeat, edit = can_repeat_and_edit
+    else:
+        can_repeat = None
+        edit = None
+    repeat = keys.keys_to_number(ks[8: 10] + ks[18: 20])
+    if repeat == 1:
+        repeat = 16 
+    if edit and (repeat > 1) and can_repeat:
+        edit = '{#Control_L(u)' + str(repeat) + '}' + edit 
     return edit
 
