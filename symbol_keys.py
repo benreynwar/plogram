@@ -79,11 +79,29 @@ second_modifier_map = {
     MID: '{^}{#Return Tab}',
 }
 
+number_map = {
+    (NON, NON): '',
+    (LOW, NON): '1',
+    (UPP, NON): '2',
+    (MID, NON): '3',
+    (NON, LOW): '4',
+    (LOW, LOW): '5',
+    (UPP, LOW): '6',
+    (MID, LOW): '7',
+    (NON, UPP): '8',
+    (LOW, UPP): '9',
+    (UPP, UPP): '0',
+    (MID, UPP): '',
+    (NON, MID): '.',
+    (LOW, MID): ',',
+    (UPP, MID): '$',
+    (MID, MID): '-',
+}
 
 def translate_symbol_keys(ks):
     ps = keys.keys_to_positions(ks)
-
-    null_positions = tuple(ps[0: 2])
+    null_position = ps[0]
+    number_position = ps[1]
     necessary_positions = tuple(ps[2: 4])
     choice_positions = ps[4]
     pinky_position = ps[5]
@@ -92,7 +110,7 @@ def translate_symbol_keys(ks):
     first_modifier_positions = ps[9]
 
     assert(necessary_positions == (NON, UPP))
-    if null_positions == (NON, NON) and pinky_position == NON:
+    if (null_position == NON) and (number_position == NON) and (pinky_position == NON):
         main_map = choice_map[choice_positions]
         if main_map is None:
             main_symbol = ''
@@ -104,6 +122,11 @@ def translate_symbol_keys(ks):
         combined = main_symbol + first_modifier + second_modifier
         if combined == '' :
             combined = '{#Tab}'
+    elif (null_position == NON) and (number_position == UPP) and (pinky_position == NON):
+        first_positions = (ps[4], ps[9])
+        second_positions = (ps[8], ps[7])
+        third_positions = (ps[6], ps[5])
+        combined = number_map[first_positions] + number_map[second_positions] + number_map[third_positions] + '{^}'
     else:
         combined = ''
     print('combined is {}'.format(combined))
