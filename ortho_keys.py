@@ -15,7 +15,7 @@ bases = (
     ('T', (NON, LOW)),
     ('D', (LOW, NON)),
     ('W', (UPP, LOW)),
-    ('B', (MID, NON)),
+    ('M', (MID, NON)),
     ('F', (MID, UPP)),
     ('H', (MID, LOW)),
     ('G', (LOW, LOW)),
@@ -23,8 +23,8 @@ bases = (
     ('P', (UPP, UPP)),
     ('',  (NON, NON)),
     ('R', (UPP, NON)),
-    ('K', (LOW, MID)),
-    ('M', (UPP, MID)),
+    ('V', (LOW, MID)),
+    ('B', (UPP, MID)),
 )
 
 keys_to_base = {}
@@ -43,47 +43,52 @@ vowels = (
     ('E', (NON, UPP)),
     ('U', (NON, LOW)),
     ('I', (NON, MID)),
-    ('OU', (UPP, LOW)),
     ('IO', (MID, NON)),
     ('EA', (LOW, UPP)),
-    ('IE', (MID, MID)),
-    ('EE', (MID, UPP)),
-    ('AI', (LOW, MID)),
-    ('OO', (MID, LOW)),
-    #('OA', (MID, NON)), # uncommon ei and eu more common
-    ('AU', (LOW, LOW)), # uncommon
-    ('OE', (UPP, UPP)), # uncommon
+    ('OU', (UPP, LOW)),
+    ('IE', (UPP, UPP)),
+    ('AI', (LOW, LOW)),
+    ('A-E', (LOW, MID)),
+    ('O-E', (UPP, MID)),
+    ('U-E', (MID, LOW)),
+    ('I-E', (MID, MID)),
+    ('E-E', (MID, UPP)),
 )
 
-vowels_list = sort_longest_first([v[0] for v in vowels if v[0]])
+vowels_list = [v[0] for v in vowels if v[0]]
 
 keys_to_vowel = {}
 for vowel, positions in vowels:
     ks = []
-    for position in positions:
-        ks += keys.position_to_keys(position)
-    keys_to_vowel[tuple(ks)] = vowel
+    if positions is not None:
+        for position in positions:
+            ks += keys.position_to_keys(position)
+        keys_to_vowel[tuple(ks)] = vowel
 
 vowel_to_keys = dict([(v, k) for k, v in keys_to_vowel.items()])
 
+
 # Order is None, Lower, Middle, Upper
 ortho_starts = {
-    'L': ('L',  'SL',   None, None),    # 12 10   8   12       2
-    'TH': ('TH', 'V',  'Z',   'THR'), # 1  7    13  10
-    'N': ('N',  'SN',  'SPL', 'SPR'),  #13       1
-    'T': ('T',  'ST',  'STR', 'TR'),   # 2       3   8
-    'D': ('D',  'WH',  None,  'DR'),   # 9       4    7(nd)
-    'W': ('W',  'SW',  None,  'WR'),   # 3       14
-    'B': ('B',  'Y',   'BL',  'BR'),   # 6           9
-    'F': ('F',  'PH',  'FL',  'FR'),   # 8       5
-    'H': ('H',  None,  'Q',   'SHR'),  # 5
-    'G': ('NG',  'G',  'GL',  'GR'),   # 14      6(ng)
-    'C': ('C',  'SC',  'CL',  'CR'),  # 4
-    'P': ('P',  'SP',  'PL',  'PR'),   # 11
-    '': ('',  'S', 'SQU', 'SCR'),       # 4
-    'K': ('K',  'SK',  'QU',  'KN'),
-    'R': ('R',  'CH',  'SCH', 'SH'),
-    'M': ('M',  'SM',  'X',  'J'),
+    '': ('',  'S', 'Y', "'"),    
+    'TH': ('TH', 'QU',  'AR',   'STR'),
+    'T': ('T',  'ST',  'TR', 'IT'), 
+    'R': ('R',  'OR',  'WH', 'SH'),
+
+    'D': ('D',  'ID',  'K',  'AT'),  
+    'C': ('C',  'IC',  'CR',  'CL'), 
+    'F': ('F',  'I',  'FR',  'A'), 
+    'P': ('P',  'SP',  'PR',  'PL'), 
+
+    'G': ('G',  'AG',  'GR',  'Z'), 
+    'W': ('W',  'IS',  'COMP', 'PH'), 
+    'N': ('N',  'IN',  'U', 'IND'),
+    'L': ('L',  'AL',  'UL', 'J'), 
+
+    'M': ('M',  'AM',  'DR',  'COMM'),
+    'V': ('V',  'EXP',  'Q',  'ACC'),
+    'B': ('B',  'UN',   'BR',  'REC'), 
+    'H': ('H',  'CH',  'UR',   'ACT'),
 }
 
 starts_list = []
@@ -103,24 +108,26 @@ for base in [b[0] for b in bases]:
         combined_keys = add_keys[index] + base_keys
         start_to_keys[start] = combined_keys
         
-
 ortho_ends = {
-    'L': ('L',  'LK',  'LL',  'LT'),  
-    'TH': ('TH', 'V',  'Z',   'RTH'),
-    'N': ('N',  'NK',  'WN',  'RN'), 
-    'T': ('T',  'NT',  'CT',  'RT'), 
-    'D': ('D',  'ND',  'LD',  'RD'), 
-    'W': ('W',  'WN',  'RL',  'XT'), 
-    'B': ('B',  'Y',   'BL',  'RB'), 
-    'F': ('F',  'PH',  'LF',  'FT'), 
-    'H': ('H',  'SH',  'GH',  'GHT'),
-    'G': ('NG',  'G',  'GN',  'RG'), 
-    'C': ('C',  'NC',  'CH',  'RCH'),
-    'P': ('P',  'MP',  'LP',  'RP'), 
-    '': ('',  'S',  'SL', 'SS'    ),
-    'R': ('R', 'ST', 'TT', 'RST'), #NST 
-    'K': ('K',  'SK',  'CK',  'RK'), 
-    'M': ('M',  'SM',   'X',   'J'),
+    '': ('',  'S', 'Y', "YS"),    
+    'TH': ('TH', 'SS',  'THER',   'NO'),
+    'T': ('T',  'ST',  'RT', 'TION'), 
+    'R': ('R',  'RS',  'TED', 'SH'),
+
+    'D': ('D',  'ND',  'K',  'LD'),  
+    'C': ('C',  'NC',  'CT',  'CK'), 
+    'F': ('F',  'TY',  'FF',  'X'), 
+    'P': ('P',  'O',  'SED',  'TS'), 
+
+    'G': ('G',  'NG',  'GHT',  'NDS'), 
+    'W': ('W',  'TES',  'TER', 'CTION'), 
+    'N': ('N',  'NS',  'NT', 'NTS'),
+    'L': ('L',  'LY',  'LLY', 'LL'), 
+
+    'M': ('M',  'LO',  'RD',  'MENT'),
+    'V': ('V',  'VES',  'VER',  'DUC'),
+    'B': ('B',  'TIONS',   'BILITY',  'BL'), 
+    'H': ('H',  'CH',  'SE',   'NY'),
 }
 
 ends_list = []
