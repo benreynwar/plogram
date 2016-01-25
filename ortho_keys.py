@@ -47,7 +47,7 @@ vowels = (
     ('EA', (LOW, UPP)),
     ('OU', (UPP, LOW)),
     ('IE', (UPP, UPP)),
-    ('AI', (LOW, LOW)),
+    ('-E', (LOW, LOW)),
     ('A-E', (LOW, MID)),
     ('O-E', (UPP, MID)),
     ('U-E', (MID, LOW)),
@@ -71,13 +71,13 @@ vowel_to_keys = dict([(v, k) for k, v in keys_to_vowel.items()])
 # Order is None, Lower, Middle, Upper
 ortho_starts = {
     '': ('',  'S', 'Y', "'"),    
-    'TH': ('TH', 'QU',  'AR',   'STR'),
-    'T': ('T',  'ST',  'TR', 'IT'), 
+    'TH': ('TH', 'IT',  'AR',   'QU'),
+    'T': ('T',  'ST',  'TR', 'STR'), 
     'R': ('R',  'OR',  'WH', 'SH'),
 
     'D': ('D',  'ID',  'K',  'AT'),  
     'C': ('C',  'IC',  'CR',  'CL'), 
-    'F': ('F',  'I',  'FR',  'A'), 
+    'F': ('F',  'A',  'FR',  'I'), 
     'P': ('P',  'SP',  'PR',  'PL'), 
 
     'G': ('G',  'AG',  'GR',  'Z'), 
@@ -108,32 +108,51 @@ for base in [b[0] for b in bases]:
         combined_keys = add_keys[index] + base_keys
         start_to_keys[start] = combined_keys
         
-ortho_ends = {
-    '': ('',  'S', 'Y', "YS"),    
-    'TH': ('TH', 'SS',  'THER',   'NO'),
-    'T': ('T',  'ST',  'RT', 'TION'), 
-    'R': ('R',  'RS',  'TED', 'SH'),
+ortho_ends = {#a
+    '': ('',  'S', 'SS/YS', 'Y'), 
+    'TH': ('TH', 'ST/THER',  'TION/TIONS', 'SE/ES'), # SE could have something after
+    'T': ('T',  'TS/TES',  'TER/TED', 'TY/TING'),
+    'R': ('R',  'RS/RSE', 'RD/RED', 'RY/RT'),
 
-    'D': ('D',  'ND',  'K',  'LD'),  
-    'C': ('C',  'NC',  'CT',  'CK'), 
-    'F': ('F',  'TY',  'FF',  'X'), 
-    'P': ('P',  'O',  'SED',  'TS'), 
+    'D': ('D',  'DS',  'NTS/NETS', 'IN/DUC'), # DES?
+    'C': ('C',  'CT/CES', 'SH/NCE', 'CK/CTION'),
+    'F': ('F',  'NDS/NO', 'FF/NI', 'NY/NDING'),
+    'P': ('P',  'LO/IL', 'NAL/AL', 'XX/RING'),
 
-    'G': ('G',  'NG',  'GHT',  'NDS'), 
-    'W': ('W',  'TES',  'TER', 'CTION'), 
-    'N': ('N',  'NS',  'NT', 'NTS'),
-    'L': ('L',  'LY',  'LLY', 'LL'), 
+    'G': ('G',  'NG/O',  'K/KE',  'GHT'), # after GHT
+    'W': ('W',  'NT/I', 'NA/A', 'RN/NTLY'), #after NT
+    'N': ('N',  'NS/NES',  'ND/NED', 'NY/NING'),
+    'L': ('L',  'LL/LES', 'LD/LI', 'LY/LLY'),
 
-    'M': ('M',  'LO',  'RD',  'MENT'),
-    'V': ('V',  'VES',  'VER',  'DUC'),
-    'B': ('B',  'TIONS',   'BILITY',  'BL'), 
-    'H': ('H',  'CH',  'SE',   'NY'),
+    'M': ('M',  'NTS/MES', 'NTI/MO', 'RM/MENT'),
+    'V': ('V',  'TIVE/VES',  'VR/VER', 'VY/VING'), #VY uncommon
+    'B': ('B',  'CH', 'BLE/BILITY', 'BLI'),
+    'H': ('H',  'STS/SES', 'SSION/SED', 'SY/SING'), #SY/SING uncommon
 }
+ 
+
+first_ends_list = []
+second_ends_list = []
+for ss in ortho_ends.values():
+    for end in ss:
+        if end is None:
+            continue
+        pieces = end.split('/')
+        if len(pieces) == 1:
+            first = pieces[0]
+            second = pieces[0] + 'E'
+        elif len(pieces) == 2:
+            first = pieces[0]
+            second = pieces[1]
+        else:
+            raise Exception('Unknown end format.')
+        first_ends_list.append(first)
+        second_ends_list.append(second)
+        
 
 ends_list = []
 for ss in ortho_ends.values():
     ends_list += [s for s in ss if s]
-ends_list = sort_longest_first(ends_list)
 
 end_to_keys = {}
 for base in [b[0] for b in bases]:
@@ -182,6 +201,16 @@ def translate_ortho_keys(ks):
     # Get vowel
     vowel_keys = ks[8: 10] + ks[18:20]
     vowel = keys_to_vowel[vowel_keys]
+    # Combine vowel and end
+    if vowel[-2:] == '-E':
+        split_end = end.split('/')
+        if len(split_end) == 1:
+            end = end + 'E'
+        elif len(split_end) == 2:
+            end = split_end[1]
+        else:
+            raise Exception('Unknown end format')
+        vowel = vowel[:-2]
     # Upper case
     uppercase_key = ks[6]
     # Ending
