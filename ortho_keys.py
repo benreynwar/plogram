@@ -77,12 +77,12 @@ ortho_starts = {
 
     'D': ('D',  'ID',  'K',  'AT'),  
     'C': ('C',  'IC',  'CR',  'CL'), 
-    'F': ('F',  'A',  'FR',  'I'), 
+    'F': ('F',  'IS',  'FR',  'PH'), 
     'P': ('P',  'SP',  'PR',  'PL'), 
 
     'G': ('G',  'AG',  'GR',  'Z'), 
-    'W': ('W',  'IS',  'COMP', 'PH'), 
-    'N': ('N',  'IN',  'U', 'IND'),
+    'W': ('W',  'A',  'U', 'I'),
+    'N': ('N',  'IN',  'COMP', 'xxx'),
     'L': ('L',  'AL',  'UL', 'J'), 
 
     'M': ('M',  'AM',  'DR',  'COMM'),
@@ -107,27 +107,26 @@ for base in [b[0] for b in bases]:
     for index, start in enumerate(ortho_starts[base]):
         combined_keys = add_keys[index] + base_keys
         start_to_keys[start] = combined_keys
-        
-ortho_ends = {#a
-    '': ('',  'S', 'SS/YS', 'Y'), 
-    'TH': ('TH', 'ST/THER',  'TION/TIONS', 'SE/ES'), # SE could have something after
+
+ortho_ends = {
+    '': ('',  'S/ES', 'SE/YS', 'Y/YING'), 
+    'TH': ('TH/THER', 'ST/STS',  'TION/TIONS', 'RN/RT'),  
     'T': ('T',  'TS/TES',  'TER/TED', 'TY/TING'),
-    'R': ('R',  'RS/RSE', 'RD/RED', 'RY/RT'),
+    'R': ('R',  'RS/RES', 'RD/RED', 'RY/RING'),
+    'D': ('D',  'DS/DES',  'DER/DU', 'IN/DING'),
+    'C': ('C',  'CT/CES', 'NCE/CTED', 'CK/CTION'),
+    'F': ('F',  'NDS/NO', 'FF/FFE', 'LF/NDING'),
+    'P': ('P',  'LL/AL', 'NAL/LO', 'LLY/LLING'),
 
-    'D': ('D',  'DS',  'NTS/NETS', 'IN/DUC'), # DES?
-    'C': ('C',  'CT/CES', 'SH/NCE', 'CK/CTION'),
-    'F': ('F',  'NDS/NO', 'FF/NI', 'NY/NDING'),
-    'P': ('P',  'LO/IL', 'NAL/AL', 'XX/RING'),
-
-    'G': ('G',  'NG/O',  'K/KE',  'GHT'), # after GHT
-    'W': ('W',  'NT/I', 'NA/A', 'RN/NTLY'), #after NT
+    'G': ('G',  'NG/NGE',  'GHT/X',  'K/KE'),
+    'W': ('NT/W',  'NTS/A', 'NA/NTI', 'NTLY/NI'), 
     'N': ('N',  'NS/NES',  'ND/NED', 'NY/NING'),
-    'L': ('L',  'LL/LES', 'LD/LI', 'LY/LLY'),
+    'L': ('L',  'LS/LES', 'LD/LI', 'LY/I'), 
 
-    'M': ('M',  'NTS/MES', 'NTI/MO', 'RM/MENT'),
-    'V': ('V',  'TIVE/VES',  'VR/VER', 'VY/VING'), #VY uncommon
-    'B': ('B',  'CH', 'BLE/BILITY', 'BLI'),
-    'H': ('H',  'STS/SES', 'SSION/SED', 'SY/SING'), #SY/SING uncommon
+    'M': ('M',  'CRE/MES', 'MO/O', 'RM/MENT'),
+    'V': ('V',  'TIVE/VES',  'VER/VED', 'CTIVE/VING'),
+    'B': ('B',  'SION/SSION', 'BLE/BILITY', 'BLI/RK'),
+    'H': ('H/SH',  'SS/SES', 'CH/SED', 'SON/SIGN'),
 }
  
 

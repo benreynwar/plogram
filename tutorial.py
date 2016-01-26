@@ -5,7 +5,29 @@ import random
 import os
 import json
 
-from stenoprog import ortho_theory, visualize
+# Test 1) Test of the basic ?? letters on left.
+# Test 2) Test of the basic ?? letters followed by enter/space/underscore
+# Test 3) Test vowels
+# Test 4) Test letters on right.
+
+# Test 5) Test of common words that just use those basic letters.
+# - get words that would be typed without blends.
+# - mix most common with word that uses a random letter.
+
+# Test 6) Test first group of blends.
+# Test 7) Test words using them. 
+
+from stenoprog import ortho_keys, visualize
+
+VOWELS = 'AEIOU'
+
+def get_left_single_letter_questions(data):
+    left_single_letter_keys = [k.lower() for k in ortho_keys.starts_list
+                               if len(k) == 1 and k not in VOWELS]
+    possible_questions = [(data.get_score(start + '-'), start + '-', start) for start in
+                          left_single_letter_keys]
+    possible_questions.sort()
+    return possible_questions
 
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -43,29 +65,11 @@ class DataStorage:
         with open(self.fn, 'w') as f:
             f.write(json.dumps(self.data))
 
-def get_questions(data):
-    starts = []
-    for base in ortho_theory.ortho_starts:
-        starts += [s.lower() for s in ortho_theory.ortho_starts[base] if s is not None]
-    ends = []
-    for base in ortho_theory.ortho_ends:
-        ends += [s.lower() for s in ortho_theory.ortho_ends[base] if s is not None]
-    vowels = [s[0].lower() for s in ortho_theory.vowels if s[0]]
-    possible_questions = []
-    #possible_questions += [(data.get_score(start + '-'), start + '-', start) for start in starts]
-    #possible_questions += [(data.get_score('-' + end), '-' + end, end) for end in ends]    
-    possible_questions += [(data.get_score(vowel), vowel, vowel) for vowel in vowels]    
-    possible_questions.sort()
-    return possible_questions
 
 def main():
     data = DataStorage()
-    possible_questions = get_questions(data)
-    print(possible_questions)
-    import pdb
-    pdb.set_trace()
     while True:
-        possible_questions = get_questions(data)
+        possible_questions = get_left_single_letter_questions(data)
         data.save()
         p_random = 0.5
         if random.random() < p_random:
@@ -81,11 +85,11 @@ def main():
         else:
             print('Incorrect!')
             if question[-1] == '-':
-                keys = ortho_theory.chord_to_keys(answer.upper(), None, None, None)
+                keys = ortho_keys.chord_to_keys(answer.upper(), None, None)
             elif question[0] == '-':
-                keys = ortho_theory.chord_to_keys(None, None, answer.upper(), None)                
+                keys = ortho_keys.chord_to_keys(None, None, answer.upper())                
             else:
-                keys = ortho_theory.chord_to_keys(None, answer.upper(), None, None)                
+                keys = ortho_theory.chord_to_keys(None, answer.upper(), None)                
             vchord = visualize.visualize_keys(keys)
             print(vchord)
             while attempt != answer:

@@ -24,6 +24,32 @@ def get_group_order(k, n=None):
         algroups = algroups[:n]
     return algroups
 
+def get_change(text, patterns, base_patterns=ortho_matching.default_patterns):
+    base_result = ortho_matching.match_text(text.upper(), patterns=base_patterns)
+    result = ortho_matching.match_text(text.upper(), patterns=patterns)
+    if result is None and base_result is None:
+        effect_size = None
+    else:
+        effect_size = len(result) - len(base_result)
+    return effect_size
+
+def get_change_distribution(patterns, base_patterns=ortho_matching.default_patterns,
+                            ignore_n=200, consider_n=10000):
+    effect_weights = {}
+    effect_counts = {}
+    total_weight = 0
+    for freq, word in freqs[ignore_n: ignore_n+consider_n]:
+        effect = get_change(word, patterns, base_patterns)
+        total_weight += freq
+        if effect not in effect_weights:
+            effect_weights[effect] = 0
+            effect_counts[effect] = 0
+        effect_weights[effect] += freq
+        effect_counts[effect] += 1
+    for effect in effect_weights:
+        effect_weights[effect] /= total_weight
+    return (effect_weights, effect_counts)
+
 def distribution_of_improvement(
         patterns, base_patterns=ortho_matching.default_patterns, n=5, removed=False):
     ignore_n = 200
@@ -56,9 +82,8 @@ def distribution_of_improvement(
     words = [w for e, f, w in top_effects]
     return improvements, words
 
-def get_avg_strokes(patterns=ortho_matching.default_patterns):
-    ignore_n = 0
-    consider_n = 10000
+def get_avg_strokes(patterns=ortho_matching.default_patterns, ignore_n=200):
+    consider_n = 2000
     count = 0
     l_count = 0
     index = 0
@@ -106,7 +131,8 @@ def start_effects():
         updated_starts_list = [v for v in starts_list]
         if start in updated_starts_list:
             updated_starts_list.remove(start)
-        patterns = ortho_matching.make_patterns(updated_starts_list,  vowels_list, ends_list)
+        patterns = ortho_matching.make_patterns(
+            updated_starts_list,  vowels_list, first_ends_list, second_ends_list)
         effects, words = distribution_of_improvement(patterns, removed=True)
         data.append((effects[-1], start, effects, words))
     data.sort(reverse=True)
@@ -128,13 +154,11 @@ def end_effects():
         patterns = ortho_matching.make_patterns(
             starts_list,  vowels_list, updated_first_ends_list, updated_second_ends_list)
         effects, words = distribution_of_improvement(patterns, removed=True)
-        data.append((effects[-1], end, effects, words))
+        data.append((effects[1], end, effects, words))
+        print(end)
     data.sort(reverse=True)
     for e, end, effects, words in data:
-        print('*************************')
-        print(end, effects[-1])
-        #print(effects)
-        #print(words)
+        print(end, effects[1])
 
 def second_to_first_end_effects():
     data = []
@@ -167,9 +191,9 @@ def add_end_effects():
     g3 = [g for f, g in get_group_order(k=3, n=500)]
     g4 = [g for f, g in get_group_order(k=4, n=400)]
     g5 = [g for f, g in get_group_order(k=5, n=300)]
-    g6 = [g for f, g in get_group_order(k=6, n=200)]
-    g7 = [g for f, g in get_group_order(k=7, n=100)]
-    for algroup in alphabet + g2 + g3 + g4 + g5 + g6 + g7:
+    #g6 = [g for f, g in get_group_order(k=6, n=200)]
+    #g7 = [g for f, g in get_group_order(k=7, n=100)]
+    for algroup in alphabet + g2 + g3 + g4 + g5:# + g6 + g7:
     #for algroup in alphabet:
     #for algroup in ('LY', ):
         updated_first_ends_list = [v for v in first_ends_list]
@@ -230,12 +254,41 @@ def test_first():
             n += 1
     print(n)
 
-#add_end_effects()    
+def find_effect_of_end(end):
+    first_ends_list_without = [e for e in first_ends_list]
+    second_ends_list_without = [e for e in second_ends_list]
+    if end in first_ends_list_without:
+        first_ends_list_without.remove(end)
+    if end in second_ends_list_without:
+        second_ends_list_without.remove(end)
+    first_ends_list_with = [e for e in first_ends_list_without]
+    first_ends_list_with.append(end)
+    second_ends_list_with = [e for e in second_ends_list_without]
+    second_ends_list_with.append(end)
+    neither_patterns = ortho_matching.make_patterns(
+        starts_list, vowels_list, first_ends_list_without,
+        second_ends_list_without)
+    first_with_patterns = ortho_matching.make_patterns(
+        starts_list, vowels_list, first_ends_list_with,
+        second_ends_list_without)
+    second_with_patterns = ortho_matching.make_patterns(
+        starts_list, vowels_list, first_ends_list_without,
+        second_ends_list_with)
+    first_change_dist = get_change_distribution(
+        patterns=first_with_patterns, base_patterns=neither_patterns)
+    second_change_dist = get_change_distribution(
+        patterns=second_with_patterns, base_patterns=neither_patterns)
+    import pdb
+    pdb.set_trace()
+
+#find_effect_of_end('FFE')
+end_effects()
+#start_effects()
 #second_to_first_end_effects()
 #test_first()
 #print(len(starts_list))
 #print(len(ends_list))
-base = get_avg_strokes()[0]
+base = get_avg_strokes(ignore_n=0)[0]
 print(base)
 
 
