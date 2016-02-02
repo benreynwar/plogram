@@ -17,7 +17,7 @@ import json
 # Test 6) Test first group of blends.
 # Test 7) Test words using them. 
 
-from stenoprog import ortho_keys, visualize
+from stenoprog import ortho_keys, visualize, tutorial_mining, ortho_matching
 
 VOWELS = 'AEIOU'
 
@@ -26,6 +26,13 @@ def get_left_single_letter_questions(data):
                                if len(k) == 1 and k not in VOWELS]
     possible_questions = [(data.get_score(start + '-'), start + '-', start) for start in
                           left_single_letter_keys]
+    possible_questions.sort()
+    return possible_questions
+
+def get_words(data, width=10000, start_level=2, end_level=2):
+    simple_words = tutorial_mining.get_words(start=0, start_level=start_level, end_level=end_level, width=width,
+                                             start_limited=False, end_limited=False)
+    possible_questions = [(data.get_score(word), word, word) for word in simple_words]
     possible_questions.sort()
     return possible_questions
 
@@ -69,7 +76,7 @@ class DataStorage:
 def main():
     data = DataStorage()
     while True:
-        possible_questions = get_left_single_letter_questions(data)
+        possible_questions = get_words(data)
         data.save()
         p_random = 0.5
         if random.random() < p_random:
@@ -78,22 +85,29 @@ def main():
             random_int = 0
         score, question, answer = possible_questions[random_int]
         clear()
-        attempt = raw_input('Type {}: '.format(question))
+        attempt = input('Type {}: '.format(question))
         data.answer(question, attempt == answer)
         if attempt == answer:
             print('Correct!')
         else:
             print('Incorrect!')
+            chords = None
             if question[-1] == '-':
-                keys = ortho_keys.chord_to_keys(answer.upper(), None, None)
+                raise Exception('Unimplemented')
+                #keys = ortho_keys.chord_to_keys(answer.upper(), None, None)
             elif question[0] == '-':
-                keys = ortho_keys.chord_to_keys(None, None, answer.upper())                
+                raise Exception('Unimplemented')
+                #keys = ortho_keys.chord_to_keys(None, None, answer.upper())                
             else:
-                keys = ortho_theory.chord_to_keys(None, answer.upper(), None)                
-            vchord = visualize.visualize_keys(keys)
-            print(vchord)
+                chords = ortho_matching.match_text(answer.upper())
+            if not chords:
+                raise Exception('Could not match text {}'.format(answer.upper()))
+            for chord in chords:
+                keys = ortho_keys.chord_to_keys(chord['start'], chord['vowel'], chord['end'])                
+                vchord = visualize.visualize_keys(keys)
+                print(vchord)
             while attempt != answer:
-                attempt = raw_input('Type {}: '.format(question))
+                attempt = input('Type {}: '.format(question))
                 if attempt == answer:
                     print('Correct!')
                 else:

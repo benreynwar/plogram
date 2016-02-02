@@ -9,22 +9,22 @@ def sort_longest_first(ll):
 
 # Second key is closest to the modifier.
 bases = (
-    ('L', (MID, MID)),
-    ('TH', (NON, UPP)),
-    ('N', (LOW, UPP)),
-    ('T', (NON, LOW)),
-    ('D', (LOW, NON)),
-    ('W', (UPP, LOW)),
-    ('M', (MID, NON)),
-    ('F', (MID, UPP)),
-    ('H', (MID, LOW)),
-    ('G', (LOW, LOW)),
-    ('C', (NON, MID)),
-    ('P', (UPP, UPP)),
-    ('',  (NON, NON)),
-    ('R', (UPP, NON)),
-    ('V', (LOW, MID)),
-    ('B', (UPP, MID)),
+    ('', (NON, NON)),
+    ('T', (NON, UPP)),
+    ('TH', (NON, LOW)),
+    ('W', (UPP, NON)),
+    ('G', (LOW, NON)),
+    ('N', (UPP, UPP)),
+    ('F', (LOW, LOW)),
+    ('L', (NON, MID)),
+    ('R', (MID, NON)),
+    ('P', (UPP, LOW)),
+    ('C', (LOW, UPP)),
+    ('V', (MID, MID)),
+    ('H', (UPP, MID)),
+    ('M', (MID, UPP)),
+    ('D', (MID, LOW)),
+    ('B', (LOW, MID)),
 )
 
 keys_to_base = {}
@@ -70,25 +70,25 @@ vowel_to_keys = dict([(v, k) for k, v in keys_to_vowel.items()])
 
 # Order is None, Lower, Middle, Upper
 ortho_starts = {
-    '': ('',  'S', 'Y', "'"),    
-    'TH': ('TH', 'IT',  'AR',   'QU'),
-    'T': ('T',  'ST',  'TR', 'STR'), 
-    'R': ('R',  'OR',  'WH', 'SH'),
+    '':  ('',   'S',  "'",  'Y'),    
+    'T': ('T',  'IT', 'AT', 'ST'), 
+    'TH':('TH', 'IS', 'J',  'Z'),
+    'W': ('W',  'I',  'A',  'U'),
 
-    'D': ('D',  'ID',  'K',  'AT'),  
-    'C': ('C',  'IC',  'CR',  'CL'), 
-    'F': ('F',  'IS',  'FR',  'PH'), 
-    'P': ('P',  'SP',  'PR',  'PL'), 
+    'G': ('G',  'WH', 'AG', 'GR'),  
+    'N': ('N',  'IN', 'UN', 'AR'),
+    'F': ('F',  'SH', 'CH', 'FR'), 
+    'L': ('L',  'UL', 'AL', 'TR'), 
 
-    'G': ('G',  'AG',  'GR',  'Z'), 
-    'W': ('W',  'A',  'U', 'I'),
-    'N': ('N',  'IN',  'COMP', 'xxx'),
-    'L': ('L',  'AL',  'UL', 'J'), 
+    'R': ('R',  'UR', 'XX', 'OR'), 
+    'P': ('P',  'SP', 'PL', 'PR'), 
+    'C': ('C',  'IC', 'CL', 'CR'),
+    'V': ('V',  'STR','ACT','ACC'), 
 
-    'M': ('M',  'AM',  'DR',  'COMM'),
-    'V': ('V',  'EXP',  'Q',  'ACC'),
-    'B': ('B',  'UN',   'BR',  'REC'), 
-    'H': ('H',  'CH',  'UR',   'ACT'),
+    'H': ('H',  'K','PH', 'EXP'),
+    'M': ('M',  'COMP','AM','COMM'),
+    'D': ('D',  'ID', 'REC','DR'),
+    'B': ('B',  'QU', 'Q',  'BR'), 
 }
 
 starts_list = []
@@ -109,24 +109,23 @@ for base in [b[0] for b in bases]:
         start_to_keys[start] = combined_keys
 
 ortho_ends = {
-    '': ('',  'S/ES', 'SE/YS', 'Y/YING'), 
-    'TH': ('TH/THER', 'ST/STS',  'TION/TIONS', 'RN/RT'),  
-    'T': ('T',  'TS/TES',  'TER/TED', 'TY/TING'),
-    'R': ('R',  'RS/RES', 'RD/RED', 'RY/RING'),
-    'D': ('D',  'DS/DES',  'DER/DU', 'IN/DING'),
-    'C': ('C',  'CT/CES', 'NCE/CTED', 'CK/CTION'),
-    'F': ('F',  'NDS/NO', 'FF/FFE', 'LF/NDING'),
-    'P': ('P',  'LL/AL', 'NAL/LO', 'LLY/LLING'),
+    '': ('/E',  'S/SE', 'YS/ES', 'Y/YING'), 
+    'T': ('T/TE',  'TS/TES',  'TION/TIONS', 'ST/STS'),
+    'TH': ('TH/THER', 'XXX/NCE',  'TER/TED', 'TY/TING'),  
+    'W': ('ND/W',  'NDS/I', 'X/A', 'RT/O'), 
+    'G': ('G/GE',  'NG/NGE',  'CTION/CTED',  'GHT/RN'),
+    'N': ('N/NE',  'NS/NES',  'NT/NTS', 'NY/NA'),
+    'F': ('F/FE',  'SH/SES', 'CH/SED', 'FF/FFE'),
+    'L': ('L/LE',  'LS/LES', 'LD/AL', 'LY/NI'), 
 
-    'G': ('G',  'NG/NGE',  'GHT/X',  'K/KE'),
-    'W': ('NT/W',  'NTS/A', 'NA/NTI', 'NTLY/NI'), 
-    'N': ('N',  'NS/NES',  'ND/NED', 'NY/NING'),
-    'L': ('L',  'LS/LES', 'LD/LI', 'LY/I'), 
-
-    'M': ('M',  'CRE/MES', 'MO/O', 'RM/MENT'),
-    'V': ('V',  'TIVE/VES',  'VER/VED', 'CTIVE/VING'),
-    'B': ('B',  'SION/SSION', 'BLE/BILITY', 'BLI/RK'),
-    'H': ('H/SH',  'SS/SES', 'CH/SED', 'SON/SIGN'),
+    'R': ('R/RE',  'RS/RES', 'RD/RED', 'RY/RING'),
+    'P': ('P/PE',  'LL/LI', 'IN/LO', 'LLY/LLING'),
+    'C': ('C/CE',  'CT/CES', 'NAL/NO', 'CR/RK'),
+    'V': ('V/VE',  'TIVE/VES',  'VER/VED', 'CTIVE/VING'),
+    'H': ('H/SS',  'K/KE', 'LF/WN', 'SSION/SION'),
+    'M': ('M/ME',  'MS/MES', 'CK/MO', 'RM/MENT'),
+    'D': ('D/DE',  'DS/DES',  'DER/DU', 'NTLY/NDING'),
+    'B': ('B/BE',  'BLE/BLI', 'BILITY/NED', 'XXX/NING'),
 }
  
 
@@ -158,7 +157,10 @@ for base in [b[0] for b in bases]:
     base_keys = base_to_keys[base]
     for index, end in enumerate(ortho_ends[base]):
         combined_keys = add_keys[index] + base_keys
-        end_to_keys[end] = combined_keys
+        split_end = end.split('/')
+        for e in split_end:
+            end_to_keys[e] = combined_keys
+        end_to_keys[combined_keys] = combined_keys
 
 def keys_to_index(ks):
     return {
@@ -202,14 +204,21 @@ def translate_ortho_keys(ks):
     vowel = keys_to_vowel[vowel_keys]
     # Combine vowel and end
     if vowel[-2:] == '-E':
-        split_end = end.split('/')
-        if len(split_end) == 1:
+        second_end = True
+        vowel = vowel[:-2]
+    else:
+        second_end = False
+    split_end = end.split('/')
+    if len(split_end) == 1:
+        if second_end:
             end = end + 'E'
-        elif len(split_end) == 2:
+    elif len(split_end) == 2:
+        if second_end:
             end = split_end[1]
         else:
-            raise Exception('Unknown end format')
-        vowel = vowel[:-2]
+            end = split_end[0]
+    else:
+        raise Exception('Unknown end format')
     # Upper case
     uppercase_key = ks[6]
     # Ending
@@ -218,9 +227,9 @@ def translate_ortho_keys(ks):
         # Add space to the end
         ending = ''
     elif ks[16: 18] == (False, True):
-        ending = '{^}{#Alt_L(slash)}'
+        ending = '.'#'{^}{#Alt_L(slash)}'
     elif ks[16: 18] == (True, True):
-        ending = '_{^}'
+        ending = ','#'_{^}'
     else:
         ending = '{^}'
     # Combine
@@ -231,6 +240,6 @@ def translate_ortho_keys(ks):
         combined = combined.lower()
     if combined and uppercase_key:
         combined = combined[0].upper() + combined[1:]
-    if ending and combined:
+    if ending and (combined is not None):
         combined += ending
     return combined

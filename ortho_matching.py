@@ -1,9 +1,12 @@
 import re
 
+from stenoprog import ortho_keys, visualize
 from stenoprog.ortho_keys import starts_list, vowels_list, first_ends_list, second_ends_list
 
-def make_patterns(starts_list,  vowels_list, first_ends_list,
-                  second_ends_list, finals_list=[]):
+def make_patterns(starts_list=starts_list,
+                  vowels_list=vowels_list,
+                  first_ends_list=first_ends_list,
+                  second_ends_list=second_ends_list):
 
     vowel_without_e = []
     vowel_with_e = []
@@ -17,17 +20,14 @@ def make_patterns(starts_list,  vowels_list, first_ends_list,
     starts_list = list(set(starts_list))
     first_ends_list = list(set(first_ends_list))
     second_ends_list = list(set(second_ends_list))
-    finals_list = list(set(finals_list))
     combined_vowels.sort(key=len, reverse=True)
     starts_list.sort(key=len, reverse=True)
     first_ends_list.sort(key=len, reverse=True)
     second_ends_list.sort(key=len, reverse=True)
-    finals_list.sort(key=len, reverse=True)
     start_regex = '|'.join(starts_list)
     vowel_regex = '|'.join(combined_vowels)
     first_end_regex = '|'.join(first_ends_list)
     second_end_regex = '|'.join(second_ends_list)
-    final_regex = '|'.join(finals_list)
     start_vowel_rem_regex = '^(?P<start>{})?(?P<vowel>{})?(?P<remainder>.*?)$'.format(
         start_regex, vowel_regex)
     start_vowel_rem_pattern = re.compile(start_vowel_rem_regex)
@@ -35,14 +35,12 @@ def make_patterns(starts_list,  vowels_list, first_ends_list,
     first_end_rem_pattern = re.compile(first_end_rem_regex)
     second_end_rem_regex = '^(?P<end>{})?(?P<remainder>.*?)$'.format(second_end_regex)
     second_end_rem_pattern = re.compile(second_end_rem_regex)
-    final_rem_regex = '^(?P<end>{})?(?P<remainder>.*?)$'.format(final_regex)
-    final_rem_pattern = re.compile(final_rem_regex)
     return {
         'starts_list': starts_list,
+        'vowels_list': vowels_list,
         'start_vowel': start_vowel_rem_pattern,
         'first_end': first_end_rem_pattern,
         'second_end': second_end_rem_pattern,
-        'final': final_rem_pattern,
         'vowel_with_e': vowel_with_e,
     }
 
@@ -54,8 +52,8 @@ def match_text(text, patterns=default_patterns):
     chords = []
     while (old_remainder != remainder) and remainder:
         old_remainder = remainder
-        start, vowel, end, vowelend, final, remainder = match_chord(remainder, patterns)
-        chords.append({'start': start, 'vowel': vowel, 'end': end, 'vowelend': vowelend, 'final': final})
+        start, vowel, end, remainder = match_chord(remainder, patterns)
+        chords.append({'start': start, 'vowel': vowel, 'end': end, })
     result = None
     if remainder == '':
         result = chords
@@ -63,9 +61,10 @@ def match_text(text, patterns=default_patterns):
         
 def match_chord(text, patterns=default_patterns):
     start, vowel, remainder = match_start_and_vowel(text, patterns['start_vowel'])
-    vowelend = None
+    if not vowel and start in vowels_list:
+        vowel = start
+        start = None
     end = None
-    final = None
     if remainder:
         can_vowel_with_e = False
         if (vowel is None) and start and (start[-1] in patterns['vowel_with_e']) and (
@@ -90,9 +89,7 @@ def match_chord(text, patterns=default_patterns):
                     vowel = vowel + '-E'
         else:
             end, remainder = match_end(remainder, patterns['first_end'])            
-        if remainder:
-            final, remainder = match_end(remainder, patterns['final'])
-    return start, vowel, end, vowelend, final, remainder
+    return start, vowel, end, remainder
 
 def match_start_and_vowel(text, pattern=default_patterns['start_vowel']):
     match = pattern.match(text)
@@ -117,4 +114,17 @@ def match_end(text, pattern):
     else:
         remainder = text
     return end, remainder
+
+
+if __name__ == '__main__':
+    while True:
+        text = raw_input('Enter text:')
+        chords = match_text(text)
+        if chords is None:
+            print('Cannot encode word')
+        else:
+            for chord in chords:
+                keys = ortho_keys.chord_to_keys(chord['start'], chord['vowel'], chord['end'])
+                vchord = visualize.visualize_keys(keys)
+                print(vchord)
 

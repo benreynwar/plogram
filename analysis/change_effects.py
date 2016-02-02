@@ -1,14 +1,13 @@
 from operator import itemgetter
 
-from stenoprog.analysis import anc_freqs
+from stenoprog.analysis import anc_freqs, byu_freqs
 from stenoprog import ortho_matching
 
 from stenoprog.ortho_keys import starts_list, vowels_list, first_ends_list, second_ends_list
 
-TESTPAIR = 'SE'
+TESTEND = 'MO'
 
-freqs = [(f, w) for w, f in anc_freqs.get_anc_freqs().items()]
-freqs.sort(reverse=True)
+freqs = anc_freqs.get_anc_freqs()
 
 def get_group_order(k, n=None):
     algroups = {}
@@ -82,17 +81,21 @@ def distribution_of_improvement(
     words = [w for e, f, w in top_effects]
     return improvements, words
 
-def get_avg_strokes(patterns=ortho_matching.default_patterns, ignore_n=200):
-    consider_n = 2000
+def get_avg_strokes(patterns=ortho_matching.default_patterns, assume_one_n=200):
+    consider_n = 10000
     count = 0
     l_count = 0
     index = 0
     total_count = 0
     fail_count = 0
-    assume_one_n = 200
-    for freq, word in freqs[ignore_n: ignore_n+consider_n]:
+    for freq, word in freqs[: consider_n]:
         result = ortho_matching.match_text(word.upper(), patterns=patterns)
         old_strokes = ortho_matching.match_text(word.upper())
+        if old_strokes is not None:
+            for chord in old_strokes:
+                if chord['end'] == TESTEND:
+                    if len(old_strokes) < len(result):
+                        print(word, freq, len(result), len(old_strokes))
         if old_strokes is not None and result is not None:
             if len(old_strokes) > len(result):
                 pass
@@ -109,7 +112,7 @@ def get_avg_strokes(patterns=ortho_matching.default_patterns, ignore_n=200):
         if n_chords is not None:
             count += freq
             l_count += freq * n_chords
-    return (l_count/count, fail_count/total_count)
+    return (float(l_count)/count, float(fail_count)/total_count)
 
 def vowel_effects():
     base = get_avg_strokes()[0]
@@ -118,7 +121,7 @@ def vowel_effects():
         if len(vowel) > 1:
             updated_vowels_list = [v for v in vowels_list]
             updated_vowels_list.remove(vowel)
-            patterns = ortho_matching.make_patterns(starts_list,  updated_vowels_list, ends_list)
+            patterns = ortho_matching.make_patterns(starts_list,  updated_vowels_list, first_ends_list, second_ends_list)
             strokes, failure = get_avg_strokes(patterns)
             pairs.append((strokes-base, vowel))
     pairs.sort()
@@ -180,6 +183,10 @@ def second_to_first_end_effects():
         #print(words)
 
 alphabet = [chr(o) for o in range(ord('A'), ord('Z')+1)]
+alphabet_pairs = []
+for a in alphabet:
+    for b in alphabet:
+        alphabet_pairs.append(a + b)
 
 def add_end_effects():
     groups = []
@@ -190,10 +197,10 @@ def add_end_effects():
     g2 = [g for f, g in get_group_order(k=2, n=200)]
     g3 = [g for f, g in get_group_order(k=3, n=500)]
     g4 = [g for f, g in get_group_order(k=4, n=400)]
-    g5 = [g for f, g in get_group_order(k=5, n=300)]
+    #g5 = [g for f, g in get_group_order(k=5, n=300)]
     #g6 = [g for f, g in get_group_order(k=6, n=200)]
     #g7 = [g for f, g in get_group_order(k=7, n=100)]
-    for algroup in alphabet + g2 + g3 + g4 + g5:# + g6 + g7:
+    for algroup in alphabet + alphabet_pairs + g3 + g4:# + g5:# + g6 + g7:
     #for algroup in alphabet:
     #for algroup in ('LY', ):
         updated_first_ends_list = [v for v in first_ends_list]
@@ -210,18 +217,16 @@ def add_end_effects():
 
 def add_start_effects():
     groups = []
-    patterns = ortho_matching.make_patterns(starts_list,  vowels_list, ends_list)
+    patterns = ortho_matching.make_patterns(starts_list,  vowels_list, first_ends_list, second_ends_list)
     base = get_avg_strokes(patterns)[0]
 
     g2 = [g for f, g in get_group_order(k=2, n=200)]
     g3 = [g for f, g in get_group_order(k=3, n=500)]
-    g4 = [g for f, g in get_group_order(k=4, n=500)]
-    g5 = [g for f, g in get_group_order(k=5, n=500)]
-    g6 = [g for f, g in get_group_order(k=6, n=500)]
-    for algroup in alphabet + g2 + g3 + g4 + g5 + g6:
+    g4 = [g for f, g in get_group_order(k=4, n=400)]
+    for algroup in alphabet + alphabet_pairs + g3:#alphabet + g2 + g3 + g4:
         updated_starts_list = [v for v in starts_list]
         updated_starts_list.append(algroup.upper())
-        patterns = ortho_matching.make_patterns(updated_starts_list,  vowels_list, ends_list)
+        patterns = ortho_matching.make_patterns(updated_starts_list,  vowels_list, first_ends_list, second_ends_list)
         strokes, failure = get_avg_strokes(patterns)
         groups.append((base-strokes, algroup))
         print(algroup, base-strokes)
@@ -281,14 +286,23 @@ def find_effect_of_end(end):
     import pdb
     pdb.set_trace()
 
-#find_effect_of_end('FFE')
-end_effects()
-#start_effects()
+#end_effects()
+#        print('null', start, vowel, end)end_effects()
 #second_to_first_end_effects()
 #test_first()
 #print(len(starts_list))
 #print(len(ends_list))
-base = get_avg_strokes(ignore_n=0)[0]
+
+updated_first_ends_list = [v for v in first_ends_list]
+updated_second_ends_list = [v for v in second_ends_list]
+end = TESTEND
+if end in first_ends_list:
+    updated_first_ends_list.remove(end)
+if end in second_ends_list:
+    updated_second_ends_list.remove(end)
+patterns = ortho_matching.make_patterns(
+    starts_list,  vowels_list, updated_first_ends_list, updated_second_ends_list)
+base = get_avg_strokes(patterns)[0]
 print(base)
 
 
