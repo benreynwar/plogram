@@ -1,4 +1,4 @@
-from stenoprog import keys
+from stenoprog import keys, state
 from stenoprog.keys import UPP, MID, NON, LOW
 
 def sort_longest_first(ll):
@@ -80,10 +80,10 @@ ortho_starts = {
     'F': ('F',  'SH', 'CH', 'FR'), 
     'L': ('L',  'UL', 'AL', 'TR'), 
 
-    'R': ('R',  'UR', 'XX', 'OR'), 
+    'R': ('R',  'UR', 'STR', 'OR'), 
     'P': ('P',  'SP', 'PL', 'PR'), 
     'C': ('C',  'IC', 'CL', 'CR'),
-    'V': ('V',  'STR','ACT','ACC'), 
+    'V': ('V',  'XXX','ACT','ACC'), 
 
     'H': ('H',  'K','PH', 'EXP'),
     'M': ('M',  'COMP','AM','COMM'),
@@ -109,23 +109,23 @@ for base in [b[0] for b in bases]:
         start_to_keys[start] = combined_keys
 
 ortho_ends = {
-    '': ('/E',  'S/SE', 'YS/ES', 'Y/YING'), 
+    '': ('/E',  'S/ES', 'SE/YS', 'Y/YING'), 
     'T': ('T/TE',  'TS/TES',  'TION/TIONS', 'ST/STS'),
     'TH': ('TH/THER', 'XXX/NCE',  'TER/TED', 'TY/TING'),  
     'W': ('ND/W',  'NDS/I', 'X/A', 'RT/O'), 
     'G': ('G/GE',  'NG/NGE',  'CTION/CTED',  'GHT/RN'),
-    'N': ('N/NE',  'NS/NES',  'NT/NTS', 'NY/NA'),
+    'N': ('N/NE',  'NS/NES',  'NT/NTS', 'NY/NING'),
     'F': ('F/FE',  'SH/SES', 'CH/SED', 'FF/FFE'),
     'L': ('L/LE',  'LS/LES', 'LD/AL', 'LY/NI'), 
 
     'R': ('R/RE',  'RS/RES', 'RD/RED', 'RY/RING'),
     'P': ('P/PE',  'LL/LI', 'IN/LO', 'LLY/LLING'),
-    'C': ('C/CE',  'CT/CES', 'NAL/NO', 'CR/RK'),
+    'C': ('C/CE',  'CT/CES', 'NAL/NO', 'XXX/RK'),
     'V': ('V/VE',  'TIVE/VES',  'VER/VED', 'CTIVE/VING'),
     'H': ('H/SS',  'K/KE', 'LF/WN', 'SSION/SION'),
     'M': ('M/ME',  'MS/MES', 'CK/MO', 'RM/MENT'),
     'D': ('D/DE',  'DS/DES',  'DER/DU', 'NTLY/NDING'),
-    'B': ('B/BE',  'BLE/BLI', 'BILITY/NED', 'XXX/NING'),
+    'B': ('B/BE',  'BLE/BLI', 'BILITY/NED', 'XXX/NA'),
 }
  
 
@@ -221,15 +221,17 @@ def translate_ortho_keys(ks):
         raise Exception('Unknown end format')
     # Upper case
     uppercase_key = ks[6]
+    # All upper case
+    alluppercase_key = ks[7]
     # Ending
-    print(ks[16:18])
+    ending_type = state.state['ending']
     if ks[16: 18] == (True, False):
         # Add space to the end
         ending = ''
     elif ks[16: 18] == (False, True):
-        ending = '.'#'{^}{#Alt_L(slash)}'
+        ending = '.' if ending_type == state.TEXT_ENDINGS else '{^}{#Alt_L(slash)}'
     elif ks[16: 18] == (True, True):
-        ending = ','#'_{^}'
+        ending = ',' if ending_type == state.TEXT_ENDINGS else '_{^}'
     else:
         ending = '{^}'
     # Combine
@@ -239,7 +241,10 @@ def translate_ortho_keys(ks):
         combined = start + vowel + end
         combined = combined.lower()
     if combined and uppercase_key:
-        combined = combined[0].upper() + combined[1:]
+        if alluppercase_key:
+            combined = combined.upper()
+        else:
+            combined = combined[0].upper() + combined[1:]
     if ending and (combined is not None):
         combined += ending
     return combined

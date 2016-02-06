@@ -12,7 +12,7 @@ from plover.machine import keymap
 from plover.oslayer.config import CONFIG_DIR, ASSETS_DIR
 from plover.config import CONFIG_FILE, DEFAULT_DICTIONARIES, Config
 
-from stenoprog import ortho_keys, symbol_keys, edit_keys, emacs_keys
+from stenoprog import ortho_keys, symbol_keys, edit_keys, emacs_keys, state
 
 keymap.Keymap.DEFAULT = [
     ["0A", ["a"]],
@@ -47,17 +47,18 @@ def steno_keys_to_key_list(steno_keys):
 
 def translate_keys(keys):
     trans = None
-    if not keys[7]:
+    if (not keys[7]) or (keys[7] and keys[6]):
         trans = ortho_keys.translate_ortho_keys(keys)
-    elif keys[4:7] == (False, False, False):
+    elif keys[0:7] == (False, False, False, False, False, False, False):
         trans = symbol_keys.translate_symbol_keys(keys)
     elif keys[4:7] == (False, True, False):
         trans = edit_keys.translate_edit_keys(keys)
     elif keys[4: 7] == (True, True, False):
         trans = emacs_keys.translate_emacs_keys(keys)
+    elif keys[0: 7] == (False, True, False, False, False, False, False):
+        trans = state.translate_state_keys(keys)
     else:
         print('not translation')
-    print(trans)
     return trans
 
 def _lookup (strokes, dictionary, suffixes):
@@ -96,7 +97,6 @@ def _translate_stroke(stroke, state, dictionary, callback):
     
     undo = []
     do = []
-    print(stroke.steno_keys)
     if stroke.steno_keys == ['3B', '2B']:
         stroke.is_correction = True
     # TODO: Test the behavior of undoing until a translation is undoable.
