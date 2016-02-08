@@ -12,7 +12,7 @@ from plover.machine import keymap
 from plover.oslayer.config import CONFIG_DIR, ASSETS_DIR
 from plover.config import CONFIG_FILE, DEFAULT_DICTIONARIES, Config
 
-from stenoprog import ortho_keys, symbol_keys, edit_keys, emacs_keys, state
+from plogram import ortho_keys, symbol_keys, edit_keys, emacs_keys, state
 
 keymap.Keymap.DEFAULT = [
     ["0A", ["a"]],

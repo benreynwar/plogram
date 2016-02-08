@@ -17,7 +17,7 @@ import json
 # Test 6) Test first group of blends.
 # Test 7) Test words using them. 
 
-from stenoprog import ortho_keys, visualize, tutorial_mining, ortho_matching
+from plogram import ortho_keys, visualize, tutorial_mining, ortho_matching
 
 VOWELS = 'AEIOU'
 

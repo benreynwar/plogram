@@ -1,5 +1,5 @@
-from stenoprog import keys, state
-from stenoprog.keys import UPP, MID, NON, LOW
+from plogram import keys, state
+from plogram.keys import UPP, MID, NON, LOW
 
 def sort_longest_first(ll):
     with_lengths = [(len(l), l) for l in ll]

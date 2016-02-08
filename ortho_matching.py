@@ -1,7 +1,7 @@
 import re
 
-from stenoprog import ortho_keys, visualize
-from stenoprog.ortho_keys import starts_list, vowels_list, first_ends_list, second_ends_list
+from plogram import ortho_keys, visualize
+from plogram.ortho_keys import starts_list, vowels_list, first_ends_list, second_ends_list
 
 def make_patterns(starts_list=starts_list,
                   vowels_list=vowels_list,

@@ -1,5 +1,5 @@
-from stenoprog import keys
-from stenoprog.keys import NON, UPP, LOW
+from plogram import keys
+from plogram.keys import NON, UPP, LOW
 
 TEXT_ENDINGS = 'TEXT_ENDINGS'
 CODE_ENDINGS = 'CODE_ENDINGS'

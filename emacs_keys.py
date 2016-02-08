@@ -1,5 +1,5 @@
-from stenoprog import keys
-from stenoprog.keys import UPP, MID, NON, LOW
+from plogram import keys
+from plogram.keys import UPP, MID, NON, LOW
 
 def from_emacs_command(command):
     return keys.M('x') + ' {PLOVER:PAUSE} ' + command + ' {#Return}'
@@ -18,8 +18,9 @@ emacs_map = {
     ((NON, NON, NON), (NON, NON, LOW, NON, NON)): '{#Control_L(x) b Return}',
     # Save with a new name.
     ((NON, NON, NON), (NON, NON, UPP, NON, NON)): '{#Control_L(x) Control_L(w)}',
-    # Previous word to upper case
-    # NOT IMPLEMENTED
+    # Alt-Tab
+    ((NON, NON, LOW), (NON, NON, NON, NON, NON)): '{#Alt_L(Tab)}',
+
  }
 
 keys_to_emacs = dict([(keys.positions_to_keys(positions[0]) + 

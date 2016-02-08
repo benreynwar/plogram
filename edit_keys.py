@@ -1,6 +1,6 @@
-from stenoprog import keys
-from stenoprog.keys import UPP, MID, NON, LOW, M, C 
-from stenoprog.emacs_keys import from_emacs_command
+from plogram import keys
+from plogram.keys import UPP, MID, NON, LOW, M, C 
+from plogram.emacs_keys import from_emacs_command
 
 edit_map = {
     # Deletes
@@ -31,11 +31,11 @@ edit_map = {
     ((NON, LOW), (UPP, NON, NON, NON)): (False, M('Shift_L(comma)')),
     ((NON, LOW), (LOW, NON, NON, NON)): (False, M('Shift_L(period)')),
     # Find Forward
-    ((NON, NON), (NON, UPP, LOW, NON)): (False, C('s')),
+    ((NON, NON), (NON, LOW, LOW, NON)): (False, C('s')),
     # Find Backwards
-    ((NON, NON), (NON, LOW, LOW, NON)): (False, C('r')),
-    # Alt-tab
-    ((NON, UPP), (NON, NON, NON, NON)): (False, '{#Alt_L(Tab)}'),
+    ((NON, NON), (NON, UPP, LOW, NON)): (False, C('r')),
+    # Emacs Undo
+    ((NON, UPP), (NON, NON, NON, NON)): (False, C('_')),
     # Search and replace
     ((NON, NON), (NON, LOW, LOW, LOW)): (False, M('Shift_L(percent)')),
     

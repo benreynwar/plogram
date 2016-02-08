@@ -1,9 +1,9 @@
 from operator import itemgetter
 
-from stenoprog.analysis import anc_freqs, byu_freqs
-from stenoprog import ortho_matching
+from plogram.analysis import anc_freqs, byu_freqs
+from plogram import ortho_matching
 
-from stenoprog.ortho_keys import starts_list, vowels_list, first_ends_list, second_ends_list
+from plogram.ortho_keys import starts_list, vowels_list, first_ends_list, second_ends_list
 
 TESTEND = 'MO'
 

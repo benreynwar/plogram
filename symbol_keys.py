@@ -1,5 +1,5 @@
-from stenoprog import keys
-from stenoprog.keys import UPP, MID, NON, LOW
+from plogram import keys
+from plogram.keys import UPP, MID, NON, LOW
 
 primary_map = {
     (LOW, NON): '.', #TH
